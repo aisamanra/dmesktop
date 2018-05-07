@@ -16,7 +16,7 @@ DMENU_CMD = ['dmenu', '-i', '-l', '10']
 # this is probably not right, in the long term!
 XDG_APP_DIRS = [
     '/usr/share/applications',
-    os.path.join(os.getenv('HOME'), '/.local/share/applications'),
+    os.path.join(os.getenv('HOME'), '.local/share/applications'),
 ]
 
 class DesktopEntry(NamedTuple):
