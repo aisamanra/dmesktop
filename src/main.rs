@@ -5,37 +5,37 @@ use failure::Error;
 use xdg_desktop::{DesktopEntry, EntryType};
 
 use std::io::{Write};
-use std::process::{self,exit,Command,Stdio};
+use std::process::{self,Command,Stdio};
 use std::os::unix::process::CommandExt;
 
-fn ensure_dmenu() -> Result<(), Error> {
+fn ensure_rofi() -> Result<(), Error> {
     let _ = Command::new("which")
-        .args(&["dmenu"])
+        .args(&["rofi"])
         .output()
-        .map_err(|_| format_err!("could not find `dmenu'"))?;
+        .map_err(|_| format_err!("could not find `rofi'"))?;
     Ok(())
 }
 
-/// Given a list of strings, we provide them to dmenu and return back
+/// Given a list of strings, we provide them to rofi and return back
 /// the one which the user chose (or an empty string, if the user
 /// chose nothing)
-fn dmenu_choose<'a, I>(choices: I) -> Result<String, Error>
+fn rofi_choose<'a, I>(choices: I) -> Result<String, Error>
     where I: Iterator<Item=&'a String>
 {
-    let mut dmenu = Command::new("dmenu")
-        .args(&["-i", "-l", "10"])
+    let mut rofi = Command::new("rofi")
+        .args(&["-rofi", "-i", "-l", "10"])
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()?;
     {
-        let stdin = dmenu.stdin.as_mut().unwrap();
+        let stdin = rofi.stdin.as_mut().unwrap();
         for c in choices.into_iter() {
             stdin.write(c.as_bytes())?;
             stdin.write(b"\n")?;
         }
     }
 
-    let output = dmenu.wait_with_output()?;
+    let output = rofi.wait_with_output()?;
     Ok(String::from_utf8(output.stdout)?.trim().to_owned())
 }
 
@@ -44,7 +44,6 @@ fn is_not_metavar(s: &&str) -> bool {
 }
 
 fn run_command(cmd: &Option<String>) -> Result<(), Error> {
-    println!("runnin");
     if let &Some(ref cmd) = cmd {
         let mut iter = cmd.split_whitespace();
         process::Command::new(iter.next().unwrap())
@@ -56,8 +55,7 @@ fn run_command(cmd: &Option<String>) -> Result<(), Error> {
     Ok(())
 }
 
-fn run() -> Result<(), Error> {
-    ensure_dmenu()?;
+fn fetch_entries() -> Result<Vec<xdg_desktop::DesktopEntry>, Error> {
     let mut entries = Vec::new();
     for f in std::fs::read_dir("/usr/share/applications")? {
         let f = f?;
@@ -71,8 +69,15 @@ fn run() -> Result<(), Error> {
             }
         }
     }
+    Ok(entries)
+}
 
-    let choice = dmenu_choose(entries.iter()
+fn main() -> Result<(), Error> {
+    ensure_rofi()?;
+
+    let entries = fetch_entries()?;
+
+    let choice = rofi_choose(entries.iter()
                               .map(|e| &e.info.name))?;
     println!("Choice is {}", choice);
 
@@ -84,11 +89,4 @@ fn run() -> Result<(), Error> {
         _ => (),
     }
     Ok(())
-}
-
-fn main() {
-    if let Err(e) = run() {
-        eprintln!("Error running dmesktop: {}", e);
-        exit(99);
-    }
 }

@@ -1,6 +1,8 @@
 The `dmesktop` program is in many ways like `dmenu_run`, but it draws the list of programs to select from using the [XDG Desktop Entry specification](https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html) instead of just using applications on the `$PATH` (which includes non-graphical programs you might not need to start via such a menu, like `ls` or `sed`).
 
-The `dmesktop` script requires Python 3.6 or greater, and hasn't been tested on any machine but my own.
+Because of slight annoyances with the startup time of Python 3, and also because of wanting some richer reuable components, `dmesktop` is being rewritten in Rust.
+
+The previous `dmesktop` script requires Python 3.6 or greater, and hasn't been tested on any machine but my own.
 
 # Known Alternatives
 
