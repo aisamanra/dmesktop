@@ -23,7 +23,7 @@ fn rofi_choose<'a, I>(choices: I) -> Result<String, Error>
     where I: Iterator<Item=&'a String>
 {
     let mut rofi = Command::new("rofi")
-        .args(&["-rofi", "-i", "-l", "10"])
+        .args(&["-dmenu", "-i", "-l", "10"])
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()?;
