@@ -6,3 +6,4 @@ authors = ["Getty Ritter <dmesktop@infinitenegativeutility.com>"]
 [dependencies]
 failure = "0.1.1"
 xdg-desktop = { git = "https://git.gdritter.com/xdg-desktop/" }
+xdg = "*"

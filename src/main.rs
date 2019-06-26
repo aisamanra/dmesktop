@@ -1,4 +1,5 @@
 #[macro_use] extern crate failure;
+extern crate xdg;
 extern crate xdg_desktop;
 
 use failure::Error;
@@ -57,10 +58,9 @@ fn run_command(cmd: &Option<String>) -> Result<(), Error> {
 
 fn fetch_entries() -> Result<Vec<xdg_desktop::DesktopEntry>, Error> {
     let mut entries = Vec::new();
-    for f in std::fs::read_dir("/usr/share/applications")? {
-        let f = f?;
-        if f.file_type()?.is_file() && f.path().extension().map_or(false, |e| e == "desktop") {
-            let mut f = std::fs::File::open(f.path())?;
+    for f in xdg::BaseDirectories::new()?.list_data_files("applications") {
+        if f.extension().map_or(false, |e| e == "desktop") {
+            let mut f = std::fs::File::open(f)?;
             match xdg_desktop::DesktopEntry::from_file(&mut f) {
                 Ok(e) => if e.is_application() {
                     entries.push(e);
